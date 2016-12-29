@@ -27,6 +27,7 @@
 #include <asm/fcntl.h>
 #include <asm/uaccess.h>
 #include <linux/mdss_io_util.h>
+#include <linux/display_state.h>
 
 #include "mdss_dsi.h"
 #include "mdss_dba_utils.h"
@@ -67,6 +68,12 @@ void mdss_dsi_ulps_suspend_enable(bool enable)
 		mdss_pinfo->ulps_suspend_enabled = enable;
 }
 EXPORT_SYMBOL(mdss_dsi_ulps_suspend_enable);
+
+bool display_on = true;
+bool is_display_on()
+{
+	return display_on;
+}
 
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 {
@@ -859,6 +866,8 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		mdss_dba_utils_hdcp_enable(pinfo->dba_data, false);
 	}
 
+	display_on = false;
+
 end:
 	pr_debug("%s:-\n", __func__);
 	return 0;
@@ -874,6 +883,8 @@ static int mdss_dsi_panel_low_power_config(struct mdss_panel_data *pdata,
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
+
+	display_on = true;
 
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
